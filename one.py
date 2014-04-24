@@ -66,7 +66,8 @@ def sort_a_list(myl):
 def minimum_in_list(my_list):
 	min = 10001
 	for i in range (len(my_list)):
-		if int(my_list[i]) < min and my_list[i] != 10001:
+		if my_list[i] != None:
+			if int(my_list[i]) < min:
 				min = int(my_list[i])
 				index = i
 	return (min, index)
@@ -86,16 +87,12 @@ def sort_subfiles_into_final_file():
 		forsort.append(ref_files[i].readline())
 	ok = 0
 	while ok < num_lines / 1000:
-		min = 10001
-		for i in range (num_lines / 1000):
-			if int(forsort[i]) < min and forsort[i] != 10001:
-				min = int(forsort[i])
-				j = i
+		min, index = minimum_in_list(forsort)
 		f.write("%s\n" %str(min))
-		if ref_files[j].tell() != os.fstat(ref_files[j].fileno()).st_size :
-			forsort[j] = ref_files[j].readline()
+		if ref_files[index].tell() != os.fstat(ref_files[index].fileno()).st_size :
+			forsort[index] = ref_files[index].readline()
 		else:
-			forsort[j] = 10001	
+			forsort[index] =  None	
 			ok = ok + 1
 		
 		
@@ -121,6 +118,6 @@ def execute():
 	write_file_random()
 	sort_in_subfiles()
 	sort_subfiles_into_final_file()
-	check_final_file
+	check_final_file()
 
 execute()
