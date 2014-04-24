@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
+import os
 import random
+from itertools import islice
+
 def write_file_random():
 	f = open("nbs.txt", "w")
 	for i in range (10000):
 		f.write(str(random.randint(0, 10000)) + "\n")
 
 
-from itertools import islice
+
 def sort_in_subfiles():
 	with open("nbs.txt", "r") as f:
 		global num_lines
@@ -72,7 +75,15 @@ def minimum_in_list(my_list):
 				index = i
 	return (min, index)
 
-import os
+
+def update_list(forsort, ref_files, index):
+	if ref_files[index].tell() != os.fstat(ref_files[index].fileno()).st_size :
+			forsort[index] = ref_files[index].readline()
+	else:
+		forsort.pop(index)
+		ref_files.pop(index)
+
+
 def sort_subfiles_into_final_file():
 	f = open("nbfin.txt", "w+")
 	j = 1
@@ -82,23 +93,14 @@ def sort_subfiles_into_final_file():
 		files.append("temp/nb" + str(i) + ".txt")
 	ref_files = [open(filename, "r") for filename in files]
 
-	min = 10001
-	for i in range (0, num_lines / 1000):
+
+	for i in range (len(ref_files)):
 		forsort.append(ref_files[i].readline())
-	ok = 0
-	while ok < num_lines / 1000:
+
+	while ref_files:
 		min, index = minimum_in_list(forsort)
 		f.write("%s\n" %str(min))
-		if ref_files[index].tell() != os.fstat(ref_files[index].fileno()).st_size :
-			forsort[index] = ref_files[index].readline()
-		else:
-			forsort[index] =  None	
-			ok = ok + 1
-		
-		
-
-
-	
+		update_list(forsort, ref_files, index)
 
 	for filename in ref_files:
 		filename.close()
