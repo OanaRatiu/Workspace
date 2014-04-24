@@ -1,0 +1,65 @@
+
+
+#!/usr/bin/env python
+
+
+def dicts(f):
+    """
+
+    >>> dicts([])
+    {}
+
+    >>> r = dicts(['a b', 'a c', 'a d'])
+    >>> r == {'a': ['b', 'c', 'd'], 'b': [], 'c': [], 'd': []}
+    True
+
+    >>> r = dicts(['a b\\n'])
+    >>> r == {'a': ['b'], 'b': []}
+    True
+
+    """
+    edge = {}
+    for line in f:
+        line = line.rstrip('\n')
+        edge_from, edge_to = line.split(' ')
+        l = edge.setdefault(edge_from, [])
+        l.append(edge_to)
+        edge.setdefault(edge_to, [])
+    return edge
+
+
+def gener(edge):
+    """
+    Create a graph.
+
+    >>> gener({})
+    {}
+
+    >>> gener({'a': ['b'], 'b': []})
+    {'a': {'b': {}}, 'b': {}}
+
+    >>> gener({'a': ['a']})
+    {'a': {'a': {...}}}
+
+    >>> r = gener({'a': ['b'], 'b': ['c'], 'c': ['d'], 'd': []})
+    >>> r == {
+    ...    'a': {'b': {'c': {'d': {}}}},
+    ...    'b': {'c': {'d': {}}},
+    ...    'c': {'d': {}},
+    ...    'd': {}
+    ... }
+    True
+
+    """
+    graph = {key: {} for key in edge.keys()}
+
+    for key, edges in edge.items():
+        for edge in edges:
+            graph[key][edge] = graph[edge]
+
+    return graph
+
+
+if __name__ == '__main__':
+    with open('edges') as f:
+        print gener(dicts(f))

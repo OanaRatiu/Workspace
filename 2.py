@@ -44,6 +44,7 @@ print graph['a']['c']
 print graph['a']['e']'''
 print graph['a']['e']['d']
 print graph['a']['e']['b']['c']['f']['g']
+print graph['a']
 '''print graph['b']['c']
 print graph['e']['d']
 print graph['e']['b']'''

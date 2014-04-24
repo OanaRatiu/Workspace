@@ -6,22 +6,22 @@ def write_file_random():
 	for i in range (10000):
 		f.write(str(random.randint(0, 10000)) + "\n")
 
-
 from itertools import islice
-def sort_in_subfiles():
-	with open("nbs.txt", "r") as f:
-		global num_lines
-		num_lines = sum(1 for line in f)
-		f.seek(0)
-		for i in range (0, num_lines / 1000):
-			lines = list(islice(f, 1000))
-			sort_a_list(lines)
-			g = open("temp/nb" + str(i) + ".txt", "w+")
-			for line in lines:
-				g.write("%s" % str(line))
-			g.close()
-		f.close()
+def sort_in_subfiles(f):
+	#with open("nbs.txt", "r") as f:
+	f.seek(0)
+	for i in range (0, num_lines / 1000):
+		lines = list(islice(f, 1000))
+		sort_a_list(lines)
+		g = open("temp/nb" + str(i) + ".txt", "w+")
+		for line in lines:
+			g.write("%s" % str(line))
+		g.close()
+	f.close()
 
+
+def number_of_lines(f):
+	return num_lines = sum(1 for line in f)
 
 def sort_a_list(myl):
 	if len(myl) > 1:
@@ -89,11 +89,6 @@ def sort_subfiles_into_final_file():
 		else:
 			forsort[j] = 10001	
 			ok = ok + 1
-		
-		
-
-
-	
 
 	for filename in ref_files:
 		filename.close()
