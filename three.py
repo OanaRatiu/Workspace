@@ -48,7 +48,7 @@ def sorting(myl):
 					continue
 			if left[i].myw == right[j].myw:										#daca primul din left si primu din right sunt ==, il pun numa pe left si il ignor pe right	
 				k = k + 1
-				myl[k].myw = left[i].myw
+				myl[k] = left[i]
 				myl[k].uniq = 1
 				j = j + 1
 				i = i + 1
@@ -82,21 +82,10 @@ def sorting(myl):
 				k = k + 1
 				myl[k] = right[j]
 				j = j + 1
-				
-
-		print "//////////////////BEFORE////////////////////"		
-		for word in myl:
-			print word.myw + " " + str(word.uniq)
-		print "//////////////////////////////////////"
 
 		if k < lm:
 			for p in range(lm-k-1):
 				myl.pop()
-
-		print "//////////////////AFTER////////////////////"		
-		for word in myl:
-			print word.myw + " " + str(word.uniq)
-		print "//////////////////////////////////////"
 
 
 l = []

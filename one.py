@@ -63,6 +63,14 @@ def sort_a_list(myl):
 			k = k + 1
 
 
+def minimum_in_list(my_list):
+	min = 10001
+	for i in range (len(my_list)):
+		if int(my_list[i]) < min and my_list[i] != 10001:
+				min = int(my_list[i])
+				index = i
+	return (min, index)
+
 import os
 def sort_subfiles_into_final_file():
 	f = open("nbfin.txt", "w+")
