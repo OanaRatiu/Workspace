@@ -14,6 +14,16 @@ def fibo_deco(func):
 
 @fibo_deco
 def fibbonacci(n):
+    """
+    >>> fibbonacci(10)
+    55
+
+    >>>fibo_values(0)
+    0
+
+    >>>fibbonacci(1)
+    1
+    """
     if n in (0, 1):
         return n
     return fibbonacci(n-1) + fibbonacci(n-2)
