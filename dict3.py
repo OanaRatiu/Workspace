@@ -78,3 +78,4 @@ if __name__ == '__main__':
     with open('word') as f:
         for word in parse_dictionary(read_from_file(f), [], []):
             print word
+
