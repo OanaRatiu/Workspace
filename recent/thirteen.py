@@ -3,11 +3,9 @@ import time
 def fibo_deco(func):
     fibo_values = {}
     def wrapper(args):
-        if args in fibo_values:
-            return fibo_values[args]
-        else:
+        if args not in fibo_values:
             fibo_values[args] = func(args)
-            return fibo_values[args]
+        return fibo_values[args]
     return wrapper
 
 

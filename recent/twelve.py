@@ -2,6 +2,7 @@ import time
 
 
 def decorator_with_args(decorator_to_enhance):
+    l = []
     def decorator_maker(*args, **kwargs):
         def decorator_wrapper(func):
             t = time.clock()
