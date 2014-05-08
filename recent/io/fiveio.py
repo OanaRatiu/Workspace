@@ -13,7 +13,6 @@ def search_url(url):
     >>> search_url("")
     []
     """
-
     links = re.findall('''(?:value=|href=)["'](.[^"']+)["']''', url, re.I)
     return links
 
