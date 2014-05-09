@@ -1,0 +1,5 @@
+my_number : 123
+my_string : 'abc'
+my_list : #1,'a',34,'list'
+my_dict : '$k1 v1,k2 v2'
+my_tuple : *1,2,'a' 
