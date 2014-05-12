@@ -107,13 +107,35 @@ class MyFormat(object):
             if value[0] == "'":
                 return key, value.replace("'","")
             elif value[0] == "#":
-                return key, value.replace("#","").split(',')
+                return key, self.convert_to_list(value)
             elif value.isdigit():
                 return key, int(value)
             elif value[0] == '$':
                 values = value.split('$')
                 if values[1] in self.types:         #[1] pt ca primul e ''
                     return key, self.types[values[1]](values[2])
+
+
+    def convert_to_list(self, list_to_be):
+         """
+        >>> a = MyFormat(None)
+        >>> a.add_type('float', float)
+        >>> sample_config = "my_list : #1,'a',34,'list',$float$1.23"
+        >>> a.convert_to_list(sample_config)
+        """
+        list_to_be = list_to_be.strip('#')
+        lists = list_to_be.split(',')
+        result = []
+        for element in lists:
+            if element[0] == "'":
+                result.append(str(element.replace("'","")))
+            elif element[0].isdigit():
+                result.append(int(element.replace("'","")))
+            elif element[0] == '$':
+                values = element.split('$')
+                if values[1] in self.types:         #[1] pt ca primul e ''
+                    result.append(self.types[values[1]](values[2]))
+        return result
 
 
     def __iter__(self):

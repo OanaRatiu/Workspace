@@ -1,5 +1,5 @@
 my_number : 12
 my_string : 'abc'
-my_list : #1,'a',34,'list' 
+my_list : #1,'a',34,'list',$float$1.23 
 my_type1 : $float$1.23
 my_type2 : $url$http://man.lupaworld.com/content/develop/Perl/Mastering_Regular_Expressions.pdf
