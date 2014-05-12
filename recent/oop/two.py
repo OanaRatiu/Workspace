@@ -1,6 +1,7 @@
 import io
 import string
 import urllib
+import urllib2
 import ConfigParser
 
 class Config(object):
@@ -88,13 +89,17 @@ class MyFormat(object):
     """Format class for my own config file"""
     def __init__(self, reader):
         self.reader = reader
+        self.types = {}
 
     def split_line(self, line):   
         """
         >>> a = MyFormat(None)
+        >>> a.add_type('url', urllib2.quote)
         >>> sample_config = "my_number : 12\\n"
         >>> a.split_line(sample_config)
         ('my_number', 12)
+        >>> a.split_line ("my_type2 : $url$http://")
+        ('my_type2', 'http%3A//')
         """
         line = line.replace("\n","")
         key, value = line.split(" : ")
@@ -105,6 +110,10 @@ class MyFormat(object):
                 return key, value.replace("#","").split(',')
             elif value.isdigit():
                 return key, int(value)
+            elif value[0] == '$':
+                values = value.split('$')
+                if values[1] in self.types:         #[1] pt ca primul e ''
+                    return key, self.types[values[1]](values[2])
 
 
     def __iter__(self):
@@ -120,6 +129,11 @@ class MyFormat(object):
         for line in self.reader:
             k, v = self.split_line(line)
             yield k, v
+
+
+    def add_type(self, type, convert_function):
+        self.types[type] = convert_function
+
 
 
 class INIFormat(object):
@@ -213,13 +227,15 @@ class WebReader(object):
 if __name__=="__main__":
     b = FileReader("my_config")
     a = MyFormat(b)
-    #for key, value in a:
-    #    print str(key) + " " + str(value)
+    a.add_type('float', float)
+    a.add_type('url', urllib2.quote)
+    for key, value in a:
+        print str(key) + " " + repr(value)
 
     c = FileReader("ini")
     d = INIFormat(c)
-    #for key, value in d:
-    #   print str(key) + " " + str(value)
+    # for key, value in d:
+    #    print str(key) + " " + str(value)
 
     conf = Config(a)
     conf.fill_dictionary()
@@ -230,6 +246,6 @@ if __name__=="__main__":
     # for key, value in d:
     #   print str(key) + " " + str(value)
 
-    conf = Config(d)
-    conf.fill_dictionary()
-    print conf.get('an_int')
+    # conf = Config(d)
+    # conf.fill_dictionary()
+    # print conf.get('an_int')
