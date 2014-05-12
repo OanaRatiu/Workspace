@@ -117,11 +117,12 @@ class MyFormat(object):
 
 
     def convert_to_list(self, list_to_be):
-         """
+        """
         >>> a = MyFormat(None)
         >>> a.add_type('float', float)
         >>> sample_config = "my_list : #1,'a',34,'list',$float$1.23"
         >>> a.convert_to_list(sample_config)
+        ['a', 34, 'list', 1.23]
         """
         list_to_be = list_to_be.strip('#')
         lists = list_to_be.split(',')
