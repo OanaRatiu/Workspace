@@ -6,92 +6,70 @@ import ConfigParser
 
 class Config(object):
     """Configuration class that gathers all other options"""
+
     def __init__(self, config_format):
         self.config_dict = {}
-        self.format = config_format
-
-    def fill_dictionary(self):
-        for key, value in self.format:
+        for key, value in config_format:
             self.config_dict[key] = value
 
     def get(self, key, default=None):
         """
-        >>> sample_config = "my_number : 12\\nmy_string : 'abc'"
-        >>> b = StringReader(sample_config)
-        >>> a = MyFormat(b)
-        >>> c = Config(a)
-        >>> c.fill_dictionary()
+        >>> c = Config([['my_number', 12], ['my_string', 'abc']])
         >>> c.get('my_number')
         12
         >>> c.get('my_string')
         'abc'
         """
-        try:
-            return self.config_dict[key]
-        except:
-            return default
+        return self.config_dict.get(key, default)
 
     def values(self):
         """
-        >>> sample_config = "my_number : 12\\nmy_string : 'abc'"
-        >>> b = StringReader(sample_config)
-        >>> a = MyFormat(b)
-        >>> c = Config(a)
-        >>> c.fill_dictionary()
+        >>> c = Config([['my_number', 12], ['my_string', 'abc']])
         >>> c.values()
         [12, 'abc']
+
         """
         return self.config_dict.values()
 
     def items(self):
         """
-        >>> sample_config = "my_number : 12\\nmy_string : 'abc'"
-        >>> b = StringReader(sample_config)
-        >>> a = MyFormat(b)
-        >>> c = Config(a)
-        >>> c.fill_dictionary()
+        >>> c = Config([['my_number', 12], ['my_string', 'abc']])
         >>> c.items()
         [('my_number', 12), ('my_string', 'abc')]
+
         """
         return self.config_dict.items()
 
     def keys(self):
         """
-        >>> sample_config = "my_number : 12\\nmy_string : 'abc'"
-        >>> b = StringReader(sample_config)
-        >>> a = MyFormat(b)
-        >>> c = Config(a)
-        >>> c.fill_dictionary()
+        >>> c = Config([['my_number', 12], ['my_string', 'abc']])
         >>> c.keys()
         ['my_number', 'my_string']
+
         """
         return self.config_dict.keys()
         
-    def __getitem__(self, key, default=None):
+    def __getitem__(self, key):
         """
-        >>> sample_config = "my_number : 12\\nmy_string : 'abc'"
-        >>> b = StringReader(sample_config)
-        >>> a = MyFormat(b)
-        >>> c = Config(a)
-        >>> c.fill_dictionary()
+        >>> c = Config([['my_number', 12], ['my_string', 'abc']])
         >>> c['my_number']
         12
-        >>> c['some_random_value']
+        >>> c['some_random_value'] # doctest:+IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
+        KeyError:
+
         """
-        try:
-            return self.config_dict[key]
-        except:
-            return None
-        
+        return self.config_dict[key]        
 
 
 class MyFormat(object):
     """Format class for my own config file"""
+
     def __init__(self, reader):
         self.reader = reader
         self.types = {}
 
-    def split_line(self, line):   
+    def _split_line(self, line):   
         """
         >>> a = MyFormat(None)
         >>> a.add_type('url', urllib2.quote)
@@ -101,22 +79,16 @@ class MyFormat(object):
         >>> a.split_line ("my_type2 : $url$http://")
         ('my_type2', 'http%3A//')
         """
-        line = line.replace("\n","")
-        key, value = line.split(" : ")
-        if not key[0].isdigit():
-            if value[0] == "'":
-                return key, value.replace("'","")
-            elif value[0] == "#":
-                return key, self.convert_to_list(value)
-            elif value.isdigit():
-                return key, int(value)
-            elif value[0] == '$':
-                values = value.split('$')
-                if values[1] in self.types:         #[1] pt ca primul e ''
-                    return key, self.types[values[1]](values[2])
+        line = line.strip()
+        key, value = line.split(" : ", 1)
+        if key[0].isdigit():
+            raise ValueError('Invalid format')
+        elif value[0] == '$':
+            custom_name, value = value[1:].split('$', 1)
+            if custom_name in self.types:         #[1] pt ca primul e ''
+                return key, self.types[custom_name](value)
 
-
-    def convert_to_list(self, list_to_be):
+    def _convert_to_list(self, list_to_be):
         """
         >>> a = MyFormat(None)
         >>> a.add_type('float', float)
@@ -124,7 +96,7 @@ class MyFormat(object):
         >>> a.convert_to_list(sample_config)
         ['a', 34, 'list', 1.23]
         """
-        list_to_be = list_to_be.strip('#')
+        list_to_be = list_to_be.lstrip('#')
         lists = list_to_be.split(',')
         result = []
         for element in lists:
@@ -138,6 +110,13 @@ class MyFormat(object):
                     result.append(self.types[values[1]](values[2]))
         return result
 
+    def _as_value(self, s):
+        if s.startswith("'") and s.endswith("'"):
+            return value[1, -1]
+        elif s[0] == "#":
+            return self._convert_to_list(value)
+        elif s.isdigit():
+            return key, int(value)
 
     def __iter__(self):
         """
@@ -150,9 +129,7 @@ class MyFormat(object):
         my_string abc
         """
         for line in self.reader:
-            k, v = self.split_line(line)
-            yield k, v
-
+            yield self._split_line(line)
 
     def add_type(self, type, convert_function):
         self.types[type] = convert_function
@@ -170,15 +147,15 @@ class INIFormat(object):
         >>> a = INIFormat(b)
         >>> for key, value in a:
         ...     print key, value
-        ab 1
-        b c
-        d 987
+        mysqld_ab 1
+        mysqld_b c
+        mysqld_d 987
         """
         config = ConfigParser.RawConfigParser(allow_no_value=True)
         config.readfp(io.BytesIO(self.reader.read()))
-        for section in config.sections(  ):
+        for section in config.sections():
             for option in config.options(section):
-                yield option, config.get(section, option)
+                yield '%s_%s' % (section, option), config.get(section, option)
 
 
 class FileReader(object):
