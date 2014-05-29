@@ -36,6 +36,8 @@ view_page_template = """
         <title>%(page_name)s</title>
     </head>
 
+    <p>NUMBER OF TIMES VISITED: %(number_of_times)s</p>
+
     <body>
         <h1>%(page_name)s</h1>
         <p>%(page_content)s</p>
@@ -44,5 +46,8 @@ view_page_template = """
 </html>
 """
 
-def render_view_page(page_name, page_content):
-    return view_page_template % {'page_name': page_name, 'page_content': page_content}
+
+
+
+def render_view_page(page_name, page_content, limits):
+    return view_page_template % {'page_name': page_name, 'page_content': page_content, 'number_of_times': limits}

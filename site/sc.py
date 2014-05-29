@@ -8,6 +8,7 @@ DATA = {
 
 from wsgiref.simple_server import make_server
 from cgi import parse_qs
+import Cookie
 import re
 
 from templates import render_edit_page, render_view_page
@@ -34,24 +35,27 @@ def front_page(environ, start_response):
 
 
 def view_page(environ, start_response, page_name):
-
    page_content = get_content(page_name)
-
+   cookie = limits(environ)
    if not page_content:
       start_response('302 FOUND', [
+         ('Set-Cookie', cookie.OutputString()),
          ('Content-Type', 'text/html'),
          ('Content-Length', '0'),
          ('Location', '/edit/%s/' % page_name)
       ])
       return []
 
+   
    start_response('200 OK', [
+      ('Set-Cookie', cookie.OutputString()),
       ('Content-Type', 'text/html')
    ])
-   return [render_view_page(page_name, linkify.sub('<a href="/\g<0>/">\g<0></a>', page_content))]
+   return [render_view_page(page_name, linkify.sub('<a href="/\g<0>/">\g<0></a>', page_content), cookie)]
 
 
 def edit_page(environ, start_response, page_name):
+   cookie = limits(environ)
    start_response('200 OK', [
       ('Content-Type', 'text/html')
    ])
@@ -100,6 +104,31 @@ def check_page_name(page_name, start_response):
    if '/' in page_name:
       start_response('404 NOT FOUND', [('Content-Type', 'text/html')])
       return ['The page is not here.']
+
+
+
+
+
+
+def limits(environ):
+    if 'HTTP_COOKIE' in environ:
+        cookies = environ.get('HTTP_COOKIE')
+        cookies = cookies.split('; ')
+        handler = {}
+        for cookie in cookies:
+            cookie = cookie.split('=')
+            handler[cookie[0]] = cookie[1]
+
+        if 'count' in handler:
+            number = int(handler['count'])
+            cookie = Cookie.SimpleCookie()
+            cookie['count'] = number + 1
+            cookie['count']['expires'] = 86400
+            return cookie['count']
+    else:
+        c = Cookie.SimpleCookie('count=1')
+        return  c['count']
+
 
 
 
